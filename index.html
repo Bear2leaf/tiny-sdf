@@ -160,7 +160,8 @@ function drawText(size) {
         const posX = sdfs[str[i]].x; // pos in sprite x
         const posY = sdfs[str[i]].y; // pos in sprite y
         const {actualBoundingBoxRight, actualBoundingBoxLeft} = ctx.measureText(str[i]);
-        const glyphWidth = Math.ceil(actualBoundingBoxRight - actualBoundingBoxLeft) * scale;
+        const glyphWidth = Math.ceil(actualBoundingBoxRight - actualBoundingBoxLeft) * buf;
+
 
         const advance = glyphWidth // advance
 
