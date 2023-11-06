@@ -39,10 +39,13 @@ export default class TinySDF {
         canvas.width = canvas.height = size;
         return canvas;
     }
-
+    isASCII(str) {
+        return /^[\x00-\x7F]*$/.test(str);
+    }
     draw(char) {
         const {
             width: glyphAdvance,
+            fontBoundingBoxAscent,
             actualBoundingBoxAscent,
             actualBoundingBoxDescent,
             actualBoundingBoxLeft,
@@ -51,7 +54,7 @@ export default class TinySDF {
 
         // The integer/pixel part of the top alignment is encoded in metrics.glyphTop
         // The remainder is implicitly encoded in the rasterization
-        const glyphTop = Math.ceil(actualBoundingBoxAscent);
+        const glyphTop = Math.ceil(this.isASCII(char)? fontBoundingBoxAscent - this.buffer : actualBoundingBoxAscent);
         const glyphLeft = 0;
 
         // If the glyph overflows the canvas size, it will be clipped at the bottom/right
