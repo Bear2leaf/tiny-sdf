@@ -45,20 +45,16 @@ export default class TinySDF {
     draw(char) {
         const {
             width: glyphAdvance,
-            fontBoundingBoxAscent,
             actualBoundingBoxAscent,
             actualBoundingBoxDescent,
-            actualBoundingBoxLeft,
-            actualBoundingBoxRight
         } = this.ctx.measureText(char);
-
         // The integer/pixel part of the top alignment is encoded in metrics.glyphTop
         // The remainder is implicitly encoded in the rasterization
-        const glyphTop = Math.ceil(this.isASCII(char)? fontBoundingBoxAscent - this.buffer : actualBoundingBoxAscent);
+        const glyphTop = Math.ceil(actualBoundingBoxAscent);
         const glyphLeft = 0;
 
         // If the glyph overflows the canvas size, it will be clipped at the bottom/right
-        const glyphWidth = Math.max(0, Math.min(this.size - this.buffer, Math.ceil(actualBoundingBoxRight - actualBoundingBoxLeft)));
+        const glyphWidth = Math.max(0, Math.min(this.size - this.buffer, Math.ceil(glyphAdvance)));
         const glyphHeight = Math.min(this.size - this.buffer, glyphTop + Math.ceil(actualBoundingBoxDescent));
 
         const width = glyphWidth + 2 * this.buffer;
@@ -73,7 +69,6 @@ export default class TinySDF {
         ctx.clearRect(buffer, buffer, glyphWidth, glyphHeight);
         ctx.fillText(char, buffer, buffer + glyphTop);
         const imgData = ctx.getImageData(buffer, buffer, glyphWidth, glyphHeight);
-
         // Initialize grids outside the glyph range to alpha 0
         gridOuter.fill(INF, 0, len);
         gridInner.fill(0, 0, len);

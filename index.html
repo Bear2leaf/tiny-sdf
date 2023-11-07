@@ -69,9 +69,9 @@ function updateSDF() {
     let i = 0;
     for (let y = 0; y + size <= canvas.height && i < chars.length; y += size) {
         for (let x = 0; x + size <= canvas.width && i < chars.length; x += size) {
-            const {data, width, height} = sdf.draw(chars[i]);
+            const {data, width, height, glyphTop, glyphHeight} = sdf.draw(chars[i]);
             ctx.putImageData(makeRGBAImageData(data, width, height), x, y);
-            sdfs[chars[i]] = {x, y};
+            sdfs[chars[i]] = {x, y, width, height, glyphTop, glyphHeight};
             i++;
         }
     }
@@ -150,29 +150,27 @@ function drawText(size) {
     const width = fontsize + buf * 2; // glyph width
     const height = fontsize + buf * 2; // glyph height
     const bx = 0; // bearing x
-    const by = fontsize / 2 + buf; // bearing y
+    const by = -fontsize+ buf; // bearing y
 
     const scale = size / fontsize;
     const lineWidth = str.length * fontsize * scale;
-
     const pen = {x: canvas2.width / 2 - lineWidth / 2, y: canvas2.height / 2};
     for (let i = 0; i < str.length; i++) {
+        console.log(str[i], sdfs[str[i]])
         const posX = sdfs[str[i]].x; // pos in sprite x
         const posY = sdfs[str[i]].y; // pos in sprite y
-        const {actualBoundingBoxRight, actualBoundingBoxLeft} = ctx.measureText(str[i]);
-        const glyphWidth = Math.ceil(actualBoundingBoxRight - actualBoundingBoxLeft) * buf;
-
-
-        const advance = glyphWidth // advance
+        const width = sdfs[str[i]].width; // pos in sprite y
+        const yoffset =( - sdfs[str[i]].height) * scale; // pos in sprite y
+        const advance = width // advance
 
         vertexElements.push(
-            pen.x + ((bx - buf) * scale), pen.y - by * scale,
-            pen.x + ((bx - buf + width) * scale), pen.y - by * scale,
-            pen.x + ((bx - buf) * scale), pen.y + (height - by) * scale,
+            pen.x + ((bx - buf) * scale), pen.y + yoffset - by * scale,
+            pen.x + ((bx - buf + width) * scale), pen.y + yoffset - by * scale,
+            pen.x + ((bx - buf) * scale), pen.y + yoffset + (height - by) * scale,
 
-            pen.x + ((bx - buf + width) * scale), pen.y - by * scale,
-            pen.x + ((bx - buf) * scale), pen.y + (height - by) * scale,
-            pen.x + ((bx - buf + width) * scale), pen.y + (height - by) * scale
+            pen.x + ((bx - buf + width) * scale), pen.y + yoffset - by * scale,
+            pen.x + ((bx - buf) * scale), pen.y + yoffset + (height - by) * scale,
+            pen.x + ((bx - buf + width) * scale), pen.y + yoffset + (height - by) * scale
         );
 
         textureElements.push(
